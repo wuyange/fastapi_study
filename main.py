@@ -11,8 +11,9 @@ from fastapi.openapi.docs import (
 )
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, validator
-from typing import List, Union, Optional
+from typing import List, Union, Optional, Tuple
 from fastapi.openapi.utils import get_openapi
+from fastapi.exceptions import HTTPException
 
 # app对象
 app = FastAPI(docs_url=None, redoc_url=None, title="test",
@@ -127,8 +128,34 @@ async def test_http_exception(
                                   alias='test_1',
                                   title='这是一个title',
                                   description='这是一个描述',
-                                  max_length=10)) -> str:
+                                  max_length=10)) -> Response:
     return Response(test, 404, {'test': 'asdasdasd'})
+
+def username_check(username:str=Query(...)):
+    if username != 'zhong':
+        raise HTTPException(status_code=403, detail="用户名错误！没有权限访问！")
+    return username
+
+def age_check(username:str=Depends(username_check),age:int=Query(...)):
+    if age <18:
+        raise HTTPException(status_code=403, detail="用户名未满18岁!禁止吸烟！")
+    return username,age
+
+
+@app.get("/user/login/")
+def user_login(username_and_age: Tuple = Depends(age_check)):
+    return {
+        'username': username_and_age[0],
+        'age': username_and_age[1],
+    }
+
+
+@app.get("/user/info")
+def user_info(username_and_age: Tuple = Depends(age_check, use_cache=False)):
+    return {
+        'username':username_and_age[0],
+        'age': username_and_age[1],
+    }
 
 @app.get('/test_async_time')
 async def test_async_time():
