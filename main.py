@@ -1,12 +1,17 @@
+import asyncio
+from decimal import Decimal
 import os
-from fastapi import FastAPI
+import threading
+import time
+from fastapi import FastAPI, BackgroundTasks, Query, Body, Request, Response, Depends
 from fastapi.openapi.docs import (
     get_redoc_html,
     get_swagger_ui_html,
     get_swagger_ui_oauth2_redirect_html,
 )
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, validator
+from typing import List, Union, Optional
 from fastapi.openapi.utils import get_openapi
 
 # app对象
@@ -63,13 +68,35 @@ async def redoc_html():
 
 class Item(BaseModel):
     name: str
-    description: str = None
+    description: Union[str, None] = None
     price: float
+    tax: Union[float, None] = None
+    tags: List[str]
+    
+class Item2(BaseModel):
+    name: Optional[str]
+    description: Optional[str] = None
+    price: float = Field(Ellipsis, 
+                         title='这是price的title', 
+                         description='这是price的描述')
     tax: float = None
+    xxx: int
+    
+    @validator('xxx')
+    def validator_xxx(cls, xxx):
+        if 0 < xxx < 6:
+            raise ValueError('error xxx')
+        return xxx
 
 @app.get("/")
-def read_root() -> dict:
-    return {"Hello": "World"}
+def read_root(item: Union[Item, Item2]):
+    print(item)
+    return {'name':item.name}
+
+@app.get("/1")
+def read_root_1(item: Item=Depends()):
+    print(item)
+    return {'name':item.name}
 
 @app.get("/items/{item_id}", response_model=Item)
 def read_item(item_id: int, q: str = None):
@@ -90,7 +117,24 @@ def create_item(item: Item) -> Item:
     """
     return item
 
+@app.post('/background_task')
+async def background_task(tasks:BackgroundTasks) -> dict:
+    return dict()
+
+@app.get('/test_http_exception')
+async def test_http_exception(
+    test:str = Query('admin', 
+                                  alias='test_1',
+                                  title='这是一个title',
+                                  description='这是一个描述',
+                                  max_length=10)) -> str:
+    return Response(test, 404, {'test': 'asdasdasd'})
+
+@app.get('/test_async_time')
+async def test_async_time():
+    await asyncio.sleep(10)
+    return [time.time(), threading.current_thread().ident]
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run('main:app', host="0.0.0.0", port=8000)
+    uvicorn.run('main:app', host="0.0.0.0", port=8000, reload=True)
