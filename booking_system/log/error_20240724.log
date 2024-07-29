@@ -1,0 +1,4 @@
+ 2024-07-24 12:44:10:992 | process_id:16728 process_name:MainProcess | thread_id:28820 thread_name:MainThread | ERROR |
+ error
+ 2024-07-24 12:44:10:994 | process_id:16728 process_name:MainProcess | thread_id:28820 thread_name:MainThread | CRITICAL |
+ critical
