@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 class Settings(BaseSettings):
@@ -24,12 +24,12 @@ class Settings(BaseSettings):
     DB_MAX_OVERFLOW: int = 0
 
     #公众号-开发者ID(AppID)
-    GZX_ID: str = 'wxe41915525f7f229f' # 微信公众号ID
+    GZX_ID: str = 'wxe41915525f7f229d' # 微信公众号ID
     #公众号-开发者密码
     GZX_SECRET:str = '7041d80c5574502e32ef63b2eea14a8e'
     GZX_PAY_KEY: str = '0wmDjLVuk904Ddyj0fLwpX1ymiBMIkXh' # 微信支付秘钥
     MCH_ID: str = '1613748420' # 微信支付ID
-    NOTIFY_URL =   'http://hx.wohuayuan.com/hs/api/v1/doctor/subscribe/paycallback' #支付回调
+    NOTIFY_URL:str = 'http://hx.wohuayuan.com/hs/api/v1/doctor/subscribe/paycallback' #支付回调
 
     #  没有值的情况下的默认值--默认情况下读取的环境变量的值
     # 链接用户名
@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     # 要链接租户空间名称
     VIRTUAL_HOST: str = 'yuyueguahao'
     # 心跳检测
-    RABBIT_HEARTBEAT = 5
+    RABBIT_HEARTBEAT: int = 5
 
 
 @lru_cache()

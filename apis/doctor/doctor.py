@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter
 
-doctor_info = APIRouter(prefix="/doctor_info")
+doctor = APIRouter(prefix="/doctor")
 
-@doctor_info.get("/test")
+@doctor.get("/test")
 async def test():
     return {"message": "test"}
