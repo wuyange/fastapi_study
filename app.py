@@ -6,6 +6,7 @@ from fastapi.openapi.docs import (
     get_swagger_ui_oauth2_redirect_html,
 )
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import PlainTextResponse
 from fastapi.openapi.utils import get_openapi
 
 from apis import init_router
@@ -62,6 +63,10 @@ async def redoc_html():
         title=app.title + " - ReDoc",
         redoc_js_url="/static/redoc/bundles/redoc.standalone.js",
 )
+
+@app.get("/", response_class=PlainTextResponse)
+def verify(echostr:str, timestamp:str, nonce:str, signature:str):
+    return echostr
 
 def creat_app():
     return app
